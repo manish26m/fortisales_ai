@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FortiSales AI</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <b>FortiSales AI</b>
+  <span><span id="mode" class="badge">checking…</span>
+  <nav style="display:inline"><a href="/dashboard">Sales dashboard</a></nav></span>
+</header>
+<main class="wrap chat-grid">
+  <section class="panel chat" aria-label="Chat with the AI sales agent">
+    <div id="log" aria-live="polite"></div>
+    <div class="chips" id="chips">
+      <button>I need a CRM for my team of 15</button>
+      <button>How much does it cost?</button>
+      <button>Do you have a mobile app?</button>
+      <button>Book a demo</button>
+      <button>Just browsing, not interested right now</button>
+    </div>
+    <div class="opts">
+      <label><input type="checkbox" id="speak" checked> Speak replies</label>
+      <label>Voice language
+        <select id="lang">
+          <option value="en-US">English (US)</option><option value="en-IN">English (India)</option>
+          <option value="hi-IN">हिन्दी</option><option value="bn-IN">বাংলা</option><option value="es-ES">Español</option>
+        </select></label>
+      <span id="voiceNote" role="status"></span>
+    </div>
+    <div class="composer">
+      <button class="btn mic" id="mic" title="Speak" aria-label="Start voice input">🎤</button>
+      <input type="text" id="input" placeholder="Type your message…" autocomplete="off" aria-label="Message">
+      <button class="btn" id="send">Send</button>
+    </div>
+  </section>
+
+  <aside class="panel lead" aria-label="Live lead qualification">
+    <h2>Live lead qualification</h2>
+    <small>Updates after every message (rule-based scoring)</small>
+    <div class="gauge"><i id="needle" style="left:0%"></i></div>
+    <div class="gauge-labels"><span>COLD</span><span>WARM</span><span>HOT</span></div>
+    <div class="cat COLD" id="cat">COLD · 0/100</div>
+    <dl class="facts">
+      <dt>Name</dt><dd id="fName">–</dd>
+      <dt>Contact</dt><dd id="fContact">–</dd>
+      <dt>Interest</dt><dd id="fInterest">–</dd>
+      <dt>Needs</dt><dd id="fReq">–</dd>
+      <dt>Sentiment</dt><dd id="fSent">–</dd>
+      <dt>Demo</dt><dd id="fAppt">Not booked</dd>
+    </dl>
+    <ul class="reasons" id="reasons"></ul>
+    <p class="sum" id="sum"></p>
+  </aside>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random();
+const log = $("log"), input = $("input");
+let busy = false;
+
+function bubble(text, who) {
+  const d = document.createElement("div");
+  d.className = "msg " + who;
+  d.textContent = text;            // textContent: never inject HTML
+  log.appendChild(d);
+  log.scrollTop = log.scrollHeight;
+  return d;
+}
+function setMode(mode) {
+  const el = $("mode");
+  el.textContent = mode;
+  el.className = "badge" + (mode.startsWith("AI") ? "" : " fb");
+}
+function showLead(l) {
+  $("needle").style.left = l.score + "%";
+  $("cat").className = "cat " + l.category;
+  $("cat").textContent = l.category + " · " + l.score + "/100";
+  $("fName").textContent = l.name || "–";
+  $("fContact").textContent = l.contact || "–";
+  $("fInterest").textContent = l.interest.length ? l.interest.join(", ") : "–";
+  $("fReq").textContent = l.requirements || "–";
+  $("fSent").textContent = l.sentiment + " (now: " + l.sentiment_now + ")";
+  $("fAppt").textContent = l.appointment || "Not booked";
+  $("sum").textContent = l.summary;
+  $("reasons").replaceChildren(...l.reasons.map(r => { const li = document.createElement("li"); li.textContent = r; return li; }));
+}
+function speak(text) {
+  if (!$("speak").checked || !("speechSynthesis" in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = $("lang").value;
+    speechSynthesis.speak(u);
+  } catch (e) { /* speaking is optional */ }
+}
+
+async function send(text) {
+  text = (text || input.value).trim();
+  if (!text || busy) return;
+  busy = true; $("send").disabled = true;
+  input.value = ""; $("chips").style.display = "none";
+  bubble(text, "me");
+  const wait = bubble("…", "bot");
+  try {
+    const res = await fetch("/api/chat", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({session_id: sid, message: text})});
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Server error");
+    wait.textContent = data.reply;
+    setMode(data.mode); showLead(data.lead); speak(data.reply);
+  } catch (e) {
+    wait.className = "msg sys";
+    wait.textContent = "Couldn't reach the server (" + e.message + "). Please try again.";
+  }
+  busy = false; $("send").disabled = false; input.focus();
+}
+
+$("send").onclick = () => send();
+input.addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+document.querySelectorAll("#chips button").forEach(b => b.onclick = () => send(b.textContent));
+
+// ---- voice input (browser speech recognition, optional) ----
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listening = false;
+const note = t => $("voiceNote").textContent = t;
+function setListening(on) { listening = on; $("mic").classList.toggle("on", on); $("mic").setAttribute("aria-label", on ? "Stop voice input" : "Start voice input"); }
+if (!SR) { $("mic").disabled = true; note("Voice input isn't supported in this browser (try Chrome or Edge). Text chat works."); }
+$("mic").onclick = () => {
+  if (!SR) return;
+  if (listening) { rec.stop(); return; }
+  note("");
+  rec = new SR();
+  rec.lang = $("lang").value; rec.interimResults = true; rec.continuous = false;
+  rec.onstart = () => { setListening(true); note("Listening…"); };
+  rec.onresult = e => {
+    let t = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+    input.value = t;
+    if (e.results[e.results.length - 1].isFinal) { note(""); send(); }
+  };
+  rec.onerror = e => {
+    const msgs = {"not-allowed": "Microphone permission was blocked. Allow it in the browser address bar, or just type.",
+      "service-not-allowed": "Microphone permission was blocked. Allow it in the browser address bar, or just type.",
+      "no-speech": "I didn't hear anything. Tap the mic and try again.",
+      "audio-capture": "No microphone found. You can type instead.",
+      "network": "Speech recognition needs an internet connection. You can type instead."};
+    note(msgs[e.error] || "Voice input failed (" + e.error + "). You can type instead.");
+  };
+  rec.onend = () => setListening(false);
+  try { rec.start(); } catch (e) { note("Couldn't start the microphone. You can type instead."); }
+};
+
+// ---- startup ----
+bubble("Hi! I'm Forti, an AI sales representative for FortiTech Solutions. What are you looking for today? You can type or tap the mic.", "bot");
+fetch("/api/status").then(r => r.json()).then(s => setMode(s.mode)).catch(() => setMode("Server unreachable"));
+</script>
+</body>
+</html>

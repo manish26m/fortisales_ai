@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales dashboard · FortiSales AI</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <b>FortiSales AI · Sales dashboard</b>
+  <span><span class="badge {{ '' if mode.startswith('AI') else 'fb' }}">{{ mode }}</span>
+  <nav style="display:inline"><a href="/">Talk to the agent</a><a href="/export.csv">Export CSV</a></nav></span>
+</header>
+<main class="wrap">
+  <div class="stats">
+    <a class="stat {{ 'active' if not active }}" href="/dashboard"><span>All leads</span><b>{{ total }}</b></a>
+    {% for c in ['HOT','WARM','COLD'] %}
+    <a class="stat {{ c }} {{ 'active' if active == c }}" href="/dashboard?category={{ c }}"><span>{{ c }} leads</span><b>{{ counts[c] }}</b></a>
+    {% endfor %}
+  </div>
+
+  <div class="insights" aria-label="Business insights">
+    <div>Average lead score<b>{{ insights.avg_score }}/100</b></div>
+    <div>Demos booked<b>{{ insights.booked }}</b>{{ insights.booking_rate }}% of leads</div>
+    <div>Top interests<b>{% if insights.top_interest %}{{ insights.top_interest[0][0] }}{% else %}–{% endif %}</b>
+      {% for name, n in insights.top_interest[1:] %}{{ name }} ({{ n }}){% if not loop.last %}, {% endif %}{% endfor %}</div>
+    <div>Sentiment<b>{{ insights.sentiment.get('Positive', 0) }} / {{ insights.sentiment.get('Neutral', 0) }} / {{ insights.sentiment.get('Negative', 0) }}</b>positive / neutral / negative</div>
+  </div>
+
+  {% if appointments %}
+  <div class="appts"><h3>Upcoming demos</h3>
+    <ul>{% for a in appointments %}<li><b>{{ a.slot | slot }}</b>: {{ a.name or 'Unnamed' }} ({{ a.contact }})</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  {% if not leads %}
+  <div class="empty">
+    {% if total %}No {{ active }} leads yet.{% else %}No leads yet. <a href="/">Start a conversation</a> and it will appear here.{% endif %}
+  </div>
+  {% endif %}
+
+  {% for l in leads %}
+  <details class="lead-row">
+    <summary>
+      <span><b>{{ l.name or 'Unnamed visitor' }}</b><br><span class="muted">{{ l.contact or 'no contact yet' }}</span></span>
+      <span>{{ l.interest or 'Interest not stated' }}<br><span class="muted">{{ l.appointment | slot if l.appointment else 'No demo booked' }}</span></span>
+      <span class="muted">{{ l.updated_at.replace('T', ' ') }}<br>{{ l.sentiment or 'Neutral' }}</span>
+      <span><span class="tag {{ l.category }}">{{ l.category }}</span></span>
+      <span title="Lead score">{{ l.score }}/100<div class="mini"><i class="{{ l.category }}" style="width:{{ l.score }}%"></i></div></span>
+    </summary>
+    <div class="detail">
+      <div>
+        <h4>Conversation summary</h4><p>{{ l.summary }}</p>
+        <h4>Customer requirements</h4><p>{{ l.requirements or 'Not stated yet' }}</p>
+        <h4>Why {{ l.category }}?</h4>
+        <ul>{% for r in l.reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+      </div>
+      <div class="transcript">
+        <h4>Transcript</h4>
+        {% for m in l.transcript %}<p><b>{{ 'Customer' if m.role == 'user' else 'Forti' }}:</b> {{ m.content }}</p>{% endfor %}
+      </div>
+    </div>
+  </details>
+  {% endfor %}
+</main>
+</body>
+</html>

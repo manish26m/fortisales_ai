@@ -1,0 +1,77 @@
+{
+  "company": "FortiTech Solutions (fictional sample company) is a software company founded in 2018 that helps small and mid-sized businesses manage sales, customer support and reporting in one place.",
+  "chunks": [
+    {
+      "id": "company",
+      "title": "About FortiTech",
+      "keywords": ["company", "about", "who", "founded", "history", "team", "mission", "headquarter", "location", "based", "customer", "clients"],
+      "text": "FortiTech Solutions was founded in 2018 and helps small and mid-sized businesses manage sales, customer support and reporting in one place. More than 2,000 teams use our products."
+    },
+    {
+      "id": "forticrm",
+      "title": "FortiCRM",
+      "keywords": ["crm", "forticrm", "pipeline", "lead", "contact", "deal", "follow-up", "followup", "sales", "track", "customer", "relationship", "feature", "automation"],
+      "text": "FortiCRM tracks your contacts, deals and sales pipeline in one place, with automatic follow-up reminders, email logging and simple sales automation. It is built for teams of 5 to 200 people."
+    },
+    {
+      "id": "fortidesk",
+      "title": "FortiDesk",
+      "keywords": ["fortidesk", "helpdesk", "help", "desk", "ticket", "ticketing", "support", "chat", "complaint", "service", "feature"],
+      "text": "FortiDesk is our customer support helpdesk. It turns emails and chat messages into tickets, assigns them to agents and tracks response times against targets you set."
+    },
+    {
+      "id": "fortiinsights",
+      "title": "FortiInsights",
+      "keywords": ["fortiinsights", "insight", "analytics", "report", "reporting", "dashboard", "forecast", "metric", "kpi", "feature"],
+      "text": "FortiInsights is our analytics add-on. It adds live dashboards, sales forecasts and scheduled reports on top of FortiCRM and FortiDesk. It is available on the Pro and Enterprise plans."
+    },
+    {
+      "id": "pricing",
+      "title": "Pricing",
+      "keywords": ["price", "prices", "pricing", "cost", "costs", "much", "plan", "plans", "billing", "subscription", "cheap", "cheaper", "expensive", "discount", "fee", "pay", "starter", "pro", "enterprise", "month", "annual", "yearly", "monthly"],
+      "text": "FortiCRM has three plans: Starter at $19 per user per month (up to 10 users), Pro at $49 per user per month, and Enterprise with custom pricing for 50+ users. FortiDesk is $29 per agent per month and FortiInsights is a $15 per user per month add-on. Annual billing includes 2 months free."
+    },
+    {
+      "id": "trial",
+      "title": "Free trial and demo",
+      "keywords": ["trial", "free", "demo", "demonstration", "test", "try", "pilot", "sample", "credit", "card"],
+      "text": "Every product has a 14-day free trial with no credit card required. We also offer a 30-minute live demo with a sales specialist."
+    },
+    {
+      "id": "services",
+      "title": "Onboarding and training services",
+      "keywords": ["service", "onboarding", "onboard", "migration", "migrate", "import", "training", "train", "implementation", "setup", "consulting", "custom"],
+      "text": "Our onboarding service starts at $1,500 and includes data migration from spreadsheets or other CRMs, setup of your pipeline, and two live training sessions for your team."
+    },
+    {
+      "id": "integrations",
+      "title": "Integrations",
+      "keywords": ["integration", "integrate", "connect", "api", "gmail", "outlook", "slack", "zapier", "quickbooks", "sync", "google", "microsoft", "whatsapp"],
+      "text": "FortiCRM integrates with Gmail, Outlook, Slack, Zapier and QuickBooks, and offers a REST API for custom connections."
+    },
+    {
+      "id": "security",
+      "title": "Security and data",
+      "keywords": ["security", "secure", "safe", "privacy", "gdpr", "soc", "encryption", "encrypt", "data", "backup", "compliance", "hosting", "hosted", "cloud", "region"],
+      "text": "All data is encrypted in transit and at rest. FortiTech is SOC 2 Type II certified and hosts customer data on cloud servers in the US or EU, whichever region you choose."
+    },
+    {
+      "id": "support",
+      "title": "Customer support",
+      "keywords": ["support", "help", "assistance", "contact", "hours", "email", "chat", "response", "sla", "24/7"],
+      "text": "Starter and Pro customers get email and chat support on weekdays, and Enterprise customers get 24/7 support with a dedicated account manager."
+    },
+    {
+      "id": "faq",
+      "title": "Frequently asked questions",
+      "keywords": ["cancel", "cancellation", "contract", "commitment", "lock", "refund", "upgrade", "downgrade", "switch", "minimum", "faq", "terms"],
+      "text": "There are no long-term contracts: monthly plans can be cancelled at any time, and you can upgrade or downgrade between plans whenever you like."
+    },
+    {
+      "id": "benefits",
+      "title": "Benefits",
+      "keywords": ["benefit", "why", "advantage", "roi", "save", "time", "better", "grow", "result", "value", "improve"],
+      "text": "Teams using FortiCRM typically spend less time on manual follow-ups and respond to new leads faster, because reminders, email logging and reporting happen automatically."
+    }
+  ]
+}
