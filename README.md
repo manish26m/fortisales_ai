@@ -42,7 +42,7 @@ fortisales-ai/
 ├── .env.example
 ├── README.md
 ├── WORK_CHART.md
-└── REPORT.md           # 1-page project report
+└── FortiSales_AI_Report.docx         # 1-page project report
 ```
 
 ## Installation
